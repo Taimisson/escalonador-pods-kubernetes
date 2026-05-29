@@ -1,0 +1,15 @@
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+docs/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+reports/*.json
+reports/*.jsonl
+reports/*.log
+reports/*.csv
+!reports/README.md
+.env
+.DS_Store
