@@ -1,0 +1,68 @@
+# o operator em si: roda o scheduler como um Deployment dentro do cluster.
+# Deployment garante que se o Pod cair, o K8s sobe outro no lugar.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: custom-scheduler-operator
+  namespace: scheduler-lab
+  labels:
+    app.kubernetes.io/name: custom-scheduler-operator
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: custom-scheduler-operator
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: custom-scheduler-operator
+    spec:
+      # usa a ServiceAccount do rbac.yaml pra ter permissão de fazer binding
+      serviceAccountName: custom-scheduler
+      automountServiceAccountToken: true
+      containers:
+        - name: operator
+          image: custom-scheduler-operator:0.1.0
+          # IfNotPresent pq a imagem é carregada no kind via "kind load", não vem de registry
+          imagePullPolicy: IfNotPresent
+          args:
+            - schedule
+            - --namespace
+            - scheduler-lab
+            - --scheduler-name
+            - custom-scheduler
+            - --interval
+            - "2"
+            - --idle-timeout
+            - "0"
+            - --policy-file
+            - /etc/custom-scheduler/policy.yaml
+            - --report
+            - /tmp/custom-decisions.jsonl
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+              ephemeral-storage: 50Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
+              ephemeral-storage: 200Mi
+          # monta o ConfigMap de pesos como arquivo dentro do Pod,
+          # no caminho que o --policy-file aponta lá em cima
+          volumeMounts:
+            - name: policy
+              mountPath: /etc/custom-scheduler
+              readOnly: true
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: false
+            runAsNonRoot: true
+            runAsUser: 65532
+            runAsGroup: 65532
+            capabilities:
+              drop: ["ALL"]
+      volumes:
+        - name: policy
+          configMap:
+            name: custom-scheduler-policy

@@ -1,0 +1,43 @@
+# os pesos do algoritmo ficam aq fora do código.
+# pra mudar como o scheduler decide, edito esse ConfigMap e reinicio o operator, sem rebuildar a imagem Docker
+# o policy.py lê esse policy.yaml montado dentro do Pod.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: custom-scheduler-policy
+  namespace: scheduler-lab
+  labels:
+    app.kubernetes.io/name: custom-scheduler-operator
+data:
+  policy.yaml: |
+    profiles:
+      light:
+        cpu: 0.25
+        memory: 0.25
+        disk: 0.20
+        latency: 0.30
+      balanced:
+        cpu: 0.30
+        memory: 0.30
+        disk: 0.25
+        latency: 0.15
+      cpu:
+        cpu: 0.50
+        memory: 0.20
+        disk: 0.20
+        latency: 0.10
+      memory:
+        cpu: 0.20
+        memory: 0.50
+        disk: 0.20
+        latency: 0.10
+      storage:
+        cpu: 0.18
+        memory: 0.17
+        disk: 0.55
+        latency: 0.10
+      latency:
+        cpu: 0.18
+        memory: 0.17
+        disk: 0.15
+        latency: 0.50
