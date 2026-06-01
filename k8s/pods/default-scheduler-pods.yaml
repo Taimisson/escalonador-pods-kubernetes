@@ -1,0 +1,247 @@
+# bateria de teste do scheduler PADRÃO do Kubernetes.
+# 15 Pods com perfis variados (light, balanced, cpu, memory, storage, latency).
+# o par custom-scheduler-pods.yaml é idêntico, só muda o schedulerName,
+# pra dar pra comparar as duas estratégias nas mesmas condições.
+apiVersion: v1
+kind: List
+items:
+  - apiVersion: v1
+    kind: Pod
+    metadata:
+      name: default-light-01
+      namespace: scheduler-lab
+      labels: {app: scheduler-lab, scheduler.lab/workload: test, scheduler.lab/batch: default, scheduler.lab/profile: light}
+      annotations: {scheduler.lab/profile: light}
+    spec:
+      schedulerName: default-scheduler
+      terminationGracePeriodSeconds: 0
+      containers:
+        - name: workload
+          image: registry.k8s.io/pause:3.10
+          resources:
+            requests: {cpu: 100m, memory: 64Mi, ephemeral-storage: 50Mi}
+            limits: {cpu: 200m, memory: 128Mi, ephemeral-storage: 100Mi}
+  - apiVersion: v1
+    kind: Pod
+    metadata:
+      name: default-light-02
+      namespace: scheduler-lab
+      labels: {app: scheduler-lab, scheduler.lab/workload: test, scheduler.lab/batch: default, scheduler.lab/profile: light}
+      annotations: {scheduler.lab/profile: light}
+    spec:
+      schedulerName: default-scheduler
+      terminationGracePeriodSeconds: 0
+      containers:
+        - name: workload
+          image: registry.k8s.io/pause:3.10
+          resources:
+            requests: {cpu: 150m, memory: 96Mi, ephemeral-storage: 80Mi}
+            limits: {cpu: 300m, memory: 192Mi, ephemeral-storage: 160Mi}
+  - apiVersion: v1
+    kind: Pod
+    metadata:
+      name: default-medium-01
+      namespace: scheduler-lab
+      labels: {app: scheduler-lab, scheduler.lab/workload: test, scheduler.lab/batch: default, scheduler.lab/profile: balanced}
+      annotations: {scheduler.lab/profile: balanced}
+    spec:
+      schedulerName: default-scheduler
+      terminationGracePeriodSeconds: 0
+      containers:
+        - name: workload
+          image: registry.k8s.io/pause:3.10
+          resources:
+            requests: {cpu: 250m, memory: 256Mi, ephemeral-storage: 120Mi}
+            limits: {cpu: 500m, memory: 512Mi, ephemeral-storage: 240Mi}
+  - apiVersion: v1
+    kind: Pod
+    metadata:
+      name: default-medium-02
+      namespace: scheduler-lab
+      labels: {app: scheduler-lab, scheduler.lab/workload: test, scheduler.lab/batch: default, scheduler.lab/profile: balanced}
+      annotations: {scheduler.lab/profile: balanced}
+    spec:
+      schedulerName: default-scheduler
+      terminationGracePeriodSeconds: 0
+      containers:
+        - name: workload
+          image: registry.k8s.io/pause:3.10
+          resources:
+            requests: {cpu: 300m, memory: 384Mi, ephemeral-storage: 150Mi}
+            limits: {cpu: 600m, memory: 768Mi, ephemeral-storage: 300Mi}
+  - apiVersion: v1
+    kind: Pod
+    metadata:
+      name: default-cpu-01
+      namespace: scheduler-lab
+      labels: {app: scheduler-lab, scheduler.lab/workload: test, scheduler.lab/batch: default, scheduler.lab/profile: cpu}
+      annotations: {scheduler.lab/profile: cpu, scheduler.lab/weight-cpu: "0.55", scheduler.lab/weight-memory: "0.20", scheduler.lab/weight-disk: "0.15", scheduler.lab/weight-latency: "0.10"}
+    spec:
+      schedulerName: default-scheduler
+      terminationGracePeriodSeconds: 0
+      containers:
+        - name: workload
+          image: registry.k8s.io/pause:3.10
+          resources:
+            requests: {cpu: 600m, memory: 128Mi, ephemeral-storage: 120Mi}
+            limits: {cpu: "1", memory: 256Mi, ephemeral-storage: 240Mi}
+  - apiVersion: v1
+    kind: Pod
+    metadata:
+      name: default-cpu-02
+      namespace: scheduler-lab
+      labels: {app: scheduler-lab, scheduler.lab/workload: test, scheduler.lab/batch: default, scheduler.lab/profile: cpu}
+      annotations: {scheduler.lab/profile: cpu, scheduler.lab/weight-cpu: "0.55", scheduler.lab/weight-memory: "0.20", scheduler.lab/weight-disk: "0.15", scheduler.lab/weight-latency: "0.10"}
+    spec:
+      schedulerName: default-scheduler
+      terminationGracePeriodSeconds: 0
+      containers:
+        - name: workload
+          image: registry.k8s.io/pause:3.10
+          resources:
+            requests: {cpu: 700m, memory: 192Mi, ephemeral-storage: 120Mi}
+            limits: {cpu: "1", memory: 384Mi, ephemeral-storage: 240Mi}
+  - apiVersion: v1
+    kind: Pod
+    metadata:
+      name: default-memory-01
+      namespace: scheduler-lab
+      labels: {app: scheduler-lab, scheduler.lab/workload: test, scheduler.lab/batch: default, scheduler.lab/profile: memory}
+      annotations: {scheduler.lab/profile: memory, scheduler.lab/weight-cpu: "0.20", scheduler.lab/weight-memory: "0.55", scheduler.lab/weight-disk: "0.15", scheduler.lab/weight-latency: "0.10"}
+    spec:
+      schedulerName: default-scheduler
+      terminationGracePeriodSeconds: 0
+      containers:
+        - name: workload
+          image: registry.k8s.io/pause:3.10
+          resources:
+            requests: {cpu: 200m, memory: 768Mi, ephemeral-storage: 150Mi}
+            limits: {cpu: 400m, memory: 1Gi, ephemeral-storage: 300Mi}
+  - apiVersion: v1
+    kind: Pod
+    metadata:
+      name: default-memory-02
+      namespace: scheduler-lab
+      labels: {app: scheduler-lab, scheduler.lab/workload: test, scheduler.lab/batch: default, scheduler.lab/profile: memory}
+      annotations: {scheduler.lab/profile: memory, scheduler.lab/weight-cpu: "0.20", scheduler.lab/weight-memory: "0.55", scheduler.lab/weight-disk: "0.15", scheduler.lab/weight-latency: "0.10"}
+    spec:
+      schedulerName: default-scheduler
+      terminationGracePeriodSeconds: 0
+      containers:
+        - name: workload
+          image: registry.k8s.io/pause:3.10
+          resources:
+            requests: {cpu: 250m, memory: 1Gi, ephemeral-storage: 150Mi}
+            limits: {cpu: 500m, memory: 1536Mi, ephemeral-storage: 300Mi}
+  - apiVersion: v1
+    kind: Pod
+    metadata:
+      name: default-storage-01
+      namespace: scheduler-lab
+      labels: {app: scheduler-lab, scheduler.lab/workload: test, scheduler.lab/batch: default, scheduler.lab/profile: storage}
+      annotations: {scheduler.lab/profile: storage, scheduler.lab/weight-cpu: "0.15", scheduler.lab/weight-memory: "0.15", scheduler.lab/weight-disk: "0.60", scheduler.lab/weight-latency: "0.10"}
+    spec:
+      schedulerName: default-scheduler
+      terminationGracePeriodSeconds: 0
+      containers:
+        - name: workload
+          image: registry.k8s.io/pause:3.10
+          resources:
+            requests: {cpu: 200m, memory: 256Mi, ephemeral-storage: 450Mi}
+            limits: {cpu: 400m, memory: 512Mi, ephemeral-storage: 700Mi}
+  - apiVersion: v1
+    kind: Pod
+    metadata:
+      name: default-storage-02
+      namespace: scheduler-lab
+      labels: {app: scheduler-lab, scheduler.lab/workload: test, scheduler.lab/batch: default, scheduler.lab/profile: storage}
+      annotations: {scheduler.lab/profile: storage, scheduler.lab/weight-cpu: "0.15", scheduler.lab/weight-memory: "0.15", scheduler.lab/weight-disk: "0.60", scheduler.lab/weight-latency: "0.10"}
+    spec:
+      schedulerName: default-scheduler
+      terminationGracePeriodSeconds: 0
+      containers:
+        - name: workload
+          image: registry.k8s.io/pause:3.10
+          resources:
+            requests: {cpu: 250m, memory: 384Mi, ephemeral-storage: 550Mi}
+            limits: {cpu: 500m, memory: 768Mi, ephemeral-storage: 850Mi}
+  - apiVersion: v1
+    kind: Pod
+    metadata:
+      name: default-latency-01
+      namespace: scheduler-lab
+      labels: {app: scheduler-lab, scheduler.lab/workload: test, scheduler.lab/batch: default, scheduler.lab/profile: latency}
+      annotations: {scheduler.lab/profile: latency, scheduler.lab/weight-cpu: "0.15", scheduler.lab/weight-memory: "0.15", scheduler.lab/weight-disk: "0.10", scheduler.lab/weight-latency: "0.60"}
+    spec:
+      schedulerName: default-scheduler
+      terminationGracePeriodSeconds: 0
+      containers:
+        - name: workload
+          image: registry.k8s.io/pause:3.10
+          resources:
+            requests: {cpu: 150m, memory: 128Mi, ephemeral-storage: 80Mi}
+            limits: {cpu: 300m, memory: 256Mi, ephemeral-storage: 160Mi}
+  - apiVersion: v1
+    kind: Pod
+    metadata:
+      name: default-latency-02
+      namespace: scheduler-lab
+      labels: {app: scheduler-lab, scheduler.lab/workload: test, scheduler.lab/batch: default, scheduler.lab/profile: latency}
+      annotations: {scheduler.lab/profile: latency, scheduler.lab/weight-cpu: "0.15", scheduler.lab/weight-memory: "0.15", scheduler.lab/weight-disk: "0.10", scheduler.lab/weight-latency: "0.60"}
+    spec:
+      schedulerName: default-scheduler
+      terminationGracePeriodSeconds: 0
+      containers:
+        - name: workload
+          image: registry.k8s.io/pause:3.10
+          resources:
+            requests: {cpu: 180m, memory: 160Mi, ephemeral-storage: 100Mi}
+            limits: {cpu: 360m, memory: 320Mi, ephemeral-storage: 200Mi}
+  - apiVersion: v1
+    kind: Pod
+    metadata:
+      name: default-balanced-01
+      namespace: scheduler-lab
+      labels: {app: scheduler-lab, scheduler.lab/workload: test, scheduler.lab/batch: default, scheduler.lab/profile: balanced}
+      annotations: {scheduler.lab/profile: balanced}
+    spec:
+      schedulerName: default-scheduler
+      terminationGracePeriodSeconds: 0
+      containers:
+        - name: workload
+          image: registry.k8s.io/pause:3.10
+          resources:
+            requests: {cpu: 350m, memory: 512Mi, ephemeral-storage: 220Mi}
+            limits: {cpu: 700m, memory: 1Gi, ephemeral-storage: 440Mi}
+  - apiVersion: v1
+    kind: Pod
+    metadata:
+      name: default-balanced-02
+      namespace: scheduler-lab
+      labels: {app: scheduler-lab, scheduler.lab/workload: test, scheduler.lab/batch: default, scheduler.lab/profile: balanced}
+      annotations: {scheduler.lab/profile: balanced}
+    spec:
+      schedulerName: default-scheduler
+      terminationGracePeriodSeconds: 0
+      containers:
+        - name: workload
+          image: registry.k8s.io/pause:3.10
+          resources:
+            requests: {cpu: 400m, memory: 512Mi, ephemeral-storage: 250Mi}
+            limits: {cpu: 800m, memory: 1Gi, ephemeral-storage: 500Mi}
+  - apiVersion: v1
+    kind: Pod
+    metadata:
+      name: default-mixed-01
+      namespace: scheduler-lab
+      labels: {app: scheduler-lab, scheduler.lab/workload: test, scheduler.lab/batch: default, scheduler.lab/profile: balanced}
+      annotations: {scheduler.lab/profile: balanced}
+    spec:
+      schedulerName: default-scheduler
+      terminationGracePeriodSeconds: 0
+      containers:
+        - name: workload
+          image: registry.k8s.io/pause:3.10
+          resources:
+            requests: {cpu: 500m, memory: 768Mi, ephemeral-storage: 350Mi}
+            limits: {cpu: "1", memory: 1536Mi, ephemeral-storage: 700Mi}
