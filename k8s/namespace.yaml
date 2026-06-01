@@ -1,0 +1,8 @@
+# namespace próprio pra isolar tudo do experimento (Pods, operator, configmap).
+# facilita limpar depois: é só deletar o namespace inteiro
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: scheduler-lab
+  labels:
+    app.kubernetes.io/name: scheduler-lab

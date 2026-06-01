@@ -1,0 +1,40 @@
+# permissões do operator. sem isso o Pod do scheduler não consegue mexer no cluster.
+# a identidade é a ServiceAccount, o ClusterRole diz O QUE pode fazer e o
+# ClusterRoleBinding cola os dois.
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: custom-scheduler
+  namespace: scheduler-lab
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: custom-scheduler
+rules:
+  # precisa LER pods/nodes/namespaces pra calcular os scores
+  - apiGroups: [""]
+    resources: ["pods", "nodes", "namespaces"]
+    verbs: ["get", "list", "watch"]
+  # precisa de PATCH pra carimbar o Pod com o node/score escolhido
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["patch"]
+  # CREATE em pods/binding é o que deixa
+  # efetivamente prender o Pod num node (o agendamento de verdade)
+  - apiGroups: [""]
+    resources: ["pods/binding"]
+    verbs: ["create"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: custom-scheduler
+subjects:
+  - kind: ServiceAccount
+    name: custom-scheduler
+    namespace: scheduler-lab
+roleRef:
+  kind: ClusterRole
+  name: custom-scheduler
+  apiGroup: rbac.authorization.k8s.io

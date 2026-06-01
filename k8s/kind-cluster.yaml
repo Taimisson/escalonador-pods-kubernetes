@@ -1,0 +1,14 @@
+# config do cluster kind: 1 control-plane + 3 workers.
+# o trabalho exige pelo menos 2 workers pra ter onde distribuir os Pods;
+# uso 3 pra dar pra diferenciar disco/latência entre eles (via label depois)
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+nodes:
+  - role: control-plane
+    image: kindest/node:v1.31.0
+  - role: worker
+    image: kindest/node:v1.31.0
+  - role: worker
+    image: kindest/node:v1.31.0
+  - role: worker
+    image: kindest/node:v1.31.0
